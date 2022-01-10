@@ -203,10 +203,10 @@ DebugOn
 \thispagestyle{fancy}
 A system is considered \emph{Safety-critical} when a failure in such could
 result in loss of life, significant property damage, or damage to the
-environment. Aircrafts, cars, weapons systems, medical devices and nuclear plants 
-are considered traiditional examples of safety-critical systems. Most of these 
-applications, if not all, rely on embedded systems that are expected to be fault 
-tolerant. A system fault tolerant, according to the authors in 
+environment. Aircrafts, cars, weapons systems, medical devices and nuclear 
+plants are considered traiditional examples of safety-critical systems. Most of 
+these applications, if not all, rely on embedded systems that are expected to be 
+fault tolerant. A system fault tolerant, according to the authors in 
 \ref{nasa_fault_tolerance}, is a system that is able to continue operating 
 without interruption when one or more of its components fail, they aim 
 to provide the ability to deliver a service that can be trusted, while fault 
@@ -225,15 +225,25 @@ or lead to logic miscalculations, which can result in a fatal failure or
 dramatic \acrshort{QOS} deterioration if not handled propperly. 
 
 Transient and intermittent faults can be addressed in \emph{hardware} with
-hardening techniques or in \emph{software}. Safety-critical applications have to
-be implemented such that they satisfy strict timing requirements and tolerate
-faults without exceeding a given amount of resources. Moreover, not only
-timeliness, reliability and cost-related requirements have to be considered but
-also other issues such as debugability and testability have to be taken into
-account. 
+hardening techniques or in \emph{software}, using error handling techniques. 
+Safety-critical applications have to be implemented such that they satisfy 
+strict timing requirements and tolerate faults without exceeding a given amount 
+of resources. Moreover, not only timeliness, reliability and cost-related 
+requirements have to be considered but also other issues such as debugability 
+and testability have to be taken into account. 
 
-In this chapter, we motivate our work on analyzing and implementing error
-handling software techniques for 
+
+
+In this chapter, we motivate the importance of software error handling
+techniques for fault tolerant systems during the design of these safety-critical
+applications based on embedded systems. We introduce the starting point of the
+proyect as well as the main contribution of our work. Finally, we present a
+short overview of the document's structure.
+
+\section{Motivation}
+
+In this section we discuss the main sources of motivation for analyzing and
+implementing different software error handling techniques for 
 
 \newpage
 
