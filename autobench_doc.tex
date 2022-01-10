@@ -1,0 +1,245 @@
+\documentclass[10pt, a4paper]{report}
+\usepackage[backend=bibtex,style=numeric]{biblatex}
+\usepackage[justification=centering]{caption}
+\usepackage[pdfpagelabels,bookmarks,hyperindex,hyperfigures, hidelinks]{hyperref}
+\usepackage[toc, page]{appendix}
+\usepackage[utf8]{inputenc}
+\usepackage[version=4]{mhchem}
+\usepackage{alltt}
+\usepackage{amsmath}
+\usepackage{booktabs}
+\usepackage{circuitikz}
+\usepackage{comment}
+\usepackage{csquotes}
+\usepackage{epstopdf}
+\usepackage{fancyhdr}
+\usepackage{gensymb}
+\usepackage{hyphsubst}
+\usepackage{lastpage}
+\usepackage{multirow}
+\usepackage{parskip}
+\usepackage{pdfpages}
+\usepackage{placeins}
+\usepackage{subcaption}
+\usepackage{tabularx}
+\usepackage{textcomp}
+\usepackage{tikz}
+\usepackage{titlesec}
+\usepackage{upgreek}
+\usepackage{wrapfig}
+\usepackage{xfrac}
+\usepackage{pdfpages}
+\usepackage{multicol}
+
+\usetikzlibrary{arrows, arrows.meta, decorations.markings, positioning}
+\addbibresource{autobench_doc.bib}
+
+% if definition for section compilling control
+\newif\ifdebug
+%\debugtrue
+\debugfalse
+
+\setlength{\parskip}{0.6em}
+
+% Set the indentation length 
+\setlength{\parindent}{0em}
+
+
+% Glossary entries
+\usepackage[acronym, nomain]{glossaries}
+\makenoidxglossaries
+
+\input{acronym_list}
+
+\tikzstyle{vecArrow} = [thick, decoration={markings,mark=at position
+	1 with {\arrow[semithick]{open triangle 60}}},
+double distance=1.4pt, shorten >= 5.5pt,
+preaction = {decorate},
+postaction = {draw,line width=1.4pt, white,shorten >= 4.5pt}]
+\tikzstyle{innerWhite} = [semithick, white,line width=1.4pt, shorten >= 4.5pt]
+\graphicspath{{assets/}} 
+\newcommand\reaction[1]{\begin{equation}\ce{#1}\end{equation}} 
+
+\titleclass{\subsubsubsection}{straight}[\subsection]
+
+\newcounter{subsubsubsection}[subsubsection]
+\renewcommand\thesubsubsubsection{\thesubsubsection.\arabic{subsubsubsection}}
+\renewcommand\theparagraph{\thesubsubsubsection.\arabic{paragraph}} % optional; useful if paragraphs are to be numbered
+
+\titleformat{\subsubsubsection}
+  {\normalfont\normalsize\bfseries}{\thesubsubsubsection}{1em}{}
+\titlespacing*{\subsubsubsection}
+{0pt}{3.25ex plus 1ex minus .2ex}{1.5ex plus .2ex}
+
+\makeatletter
+\renewcommand\paragraph{\@startsection{paragraph}{5}{\z@}%
+  {3.25ex \@plus1ex \@minus.2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\renewcommand\subparagraph{\@startsection{subparagraph}{6}{\parindent}%
+  {3.25ex \@plus1ex \@minus .2ex}%
+  {-1em}%
+  {\normalfont\normalsize\bfseries}}
+\def\toclevel@subsubsubsection{4}
+\def\toclevel@paragraph{5}
+\def\toclevel@paragraph{6}
+\def\l@subsubsubsection{\@dottedtocline{4}{7em}{4em}}
+\def\l@paragraph{\@dottedtocline{5}{10em}{5em}}
+\def\l@subparagraph{\@dottedtocline{6}{14em}{6em}}
+\makeatother
+
+\setcounter{secnumdepth}{4}
+\setcounter{tocdepth}{4}
+
+\setcounter{MaxMatrixCols}{20}
+
+\setlength{\headheight}{52pt}
+\pagestyle{fancy}
+\fancyheadoffset{0.5cm}
+\fancyhead{}
+\fancyhead[L]{\includegraphics[scale=0.3]{ida.png}}
+\fancyhead[C]{Technische Universität Braunschweig\\
+Institut für Datentechnik und Kommunikationsnetzte}
+\fancyhead[R]{\includegraphics[scale=0.2]{tub.png}}
+
+\renewcommand{\figurename}{Fig.}
+
+\renewcommand\footrule{\begin{minipage}{0.95\textwidth}
+    \hrule width \hsize   
+\end{minipage}\par}
+
+\setlength{\footskip}{30pt}
+\fancyfoot[L]{\textit{M. Moya}}
+\fancyfoot[C]{}
+\fancyfoot[R]{\textit{Page \thepage{} de \pageref{LastPage}}}
+
+\DeclareGraphicsExtensions{.bmp, .png, .jpg}
+
+\topmargin = -1.5cm
+\leftmargin = -1cm
+\oddsidemargin = 0cm
+\textheight = 24cm
+\textwidth = 17cm
+
+% renew itemize symbol level II
+\renewcommand{\labelitemii}{$>$}
+
+\begin{document}
+
+\ifdebug
+DebugOn
+\newpage
+\else
+\begin{titlepage}
+    \begin{center}
+	\begin{minipage}{.45\textwidth}
+	    \flushleft
+	    \includegraphics[scale=0.5]{ida.png}
+	\end{minipage}%
+	\begin{minipage}{.45\textwidth}
+	    \flushright
+	    \includegraphics[scale=0.5]{tub.png}
+	\end{minipage}
+
+	\vspace{15mm}
+
+	\large{ \textbf{Technische Universität Braunschweig}} \\[5mm]
+	\textbf{Institut für Datentechnik und Kommunikationsnetze} \\[50mm]
+	\Large{\textbf{Error Handling within a Dual Core Lockstep RISC-V Processor
+    Architecture}} \\[15mm]
+
+    \end{center}
+
+    {\large\textbf{Author(s):}}
+    \begin{itemize}
+        \item [] Martin Moya - \texttt{m.moya@tu-braunschweig.de}
+    \end{itemize}
+    \vspace{10pt}
+    {\large\textbf{Supervisor(s):}}
+
+    \begin{itemize}
+        \item [] Alexander Dörflinger - \texttt{adoerflinger@ida.ing.tu-bs.de}
+    \end{itemize}
+    \vspace{10pt}
+    {\large\textbf{Examiner(s):}}
+    \begin{itemize}
+        \item [] Prof. Dr.-Ing. Rolf ernst - \texttt{ernst@ida.ing.tu-bs.de}
+        \item [] Prof. Dr.-Ing. Harald Michalik - \texttt{michalik@ida.ing.tu-bs.de}
+    \end{itemize}
+    \vspace{10pt}
+\end{titlepage}
+
+\newpage
+
+\begin{abstract}
+    \thispagestyle{fancy}
+    Microcontrollers (\acrshort{MCU}) are widely used in critical applications 
+    due to low-energy consumption and high-performance computing power. Despite 
+    these advantages, \acrshort{MCU}s are sensitive to radiation like any other
+    electronic device, leading to transient and interminent faults causing
+    cathastrophic situations.
+
+    Critical applications have to function in a proper manner and deliver high
+    level of \acrlong{QOS} (\acrshort{QOS}), on the other hand, these kind of
+    applications have also strict time and cost constrains, which means that
+    they do not only have to meet high \acrshort{QOS} standards, they also have
+    to satisfy with a handfull of constraints. This work analyzes and proposes 
+    the development of a software solution for error handling within a Dual Core 
+    Lockstep (\acrshort{DCLS}) RISC-V Processor Architecture. The solution 
+    provides a framework to implement different error handling techniques given 
+    specific scenarios in order to satisfy both requirements.
+\end{abstract}
+
+\newpage
+% Print table of contents
+\begin{tableofcontents}
+    \thispagestyle{fancy}
+\end{tableofcontents}
+
+\newpage
+
+\chapter{Introduction}
+
+\thispagestyle{fancy}
+A system is considered \emph{Safety-critical} when a failure in such could
+result in loss of life, significant property damage, or damage to the
+environment. Aircrafts, cars, weapons systems, medical devices and nuclear plants 
+are considered traiditional examples of safety-critical systems. Most of these 
+applications, if not all, rely on embedded systems that are expected to be fault 
+tolerant. A system fault tolerant, according to the authors in 
+\ref{nasa_fault_tolerance}, is a system that is able to continue operating 
+without interruption when one or more of its components fail, they aim 
+to provide the ability to deliver a service that can be trusted, while fault 
+removal and fault forecasting aim to reach confidence in that ability by 
+justifying that the functional and the dependability and security specifications 
+are adequate and that the systems is likely to meet them.
+
+The objective of creating a fault-tolerant system is to prevent disruptions
+arising from a single point of failure, ensuring the high availability and
+business continuity of mission-critical applications or systems. As of now 
+faults in distributed embedded systems can be permanent, intermittent or 
+transient. Permanent faults cause long-term malfunctioning of components, while 
+transient and intermittent faults appear for a short time. The effects of these 
+faults, independently of their nature, can be devastating. They may corrupt data
+or lead to logic miscalculations, which can result in a fatal failure or 
+dramatic \acrshort{QOS} deterioration if not handled propperly. 
+
+Transient and intermittent faults can be addressed in \emph{hardware} with
+hardening techniques or in \emph{software}. Safety-critical applications have to
+be implemented such that they satisfy strict timing requirements and tolerate
+faults without exceeding a given amount of resources. Moreover, not only
+timeliness, reliability and cost-related requirements have to be considered but
+also other issues such as debugability and testability have to be taken into
+account. 
+
+In this chapter, we motivate our work on analyzing and implementing error
+handling software techniques for 
+
+\newpage
+
+% Print table of acronyms
+\addcontentsline{toc}{section}{Tabla de Abreviaturas}
+\glsaddall
+\printnoidxglossary[type=\acronymtype,title={Abreviaturas}]
+
+\end{document}
