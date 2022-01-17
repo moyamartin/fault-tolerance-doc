@@ -138,7 +138,7 @@ DebugOn
 	\end{minipage}%
 	\begin{minipage}{.45\textwidth}
 	    \flushright
-	    \includegraphics[scale=0.5]{tub.png}
+	    \includegraphics[scale=0.41]{tub.png}
 	\end{minipage}
 
 	\vspace{15mm}
@@ -183,11 +183,12 @@ DebugOn
     level of \acrlong{QOS} (\acrshort{QOS}), on the other hand, these kind of
     applications have also strict time and cost constrains, which means that
     they do not only have to meet high \acrshort{QOS} standards, they also have
-    to satisfy with a handfull of constraints. This work analyzes and proposes 
-    the development of a software solution for error handling within a Dual Core 
-    Lockstep (\acrshort{DCLS}) RISC-V Processor Architecture. The solution 
-    provides a framework to implement different error handling techniques given 
-    specific scenarios in order to satisfy both requirements.
+    to satisfy with a handfull of constraints. In order to adress these issues, 
+    this work analyzes and proposes the development of a software solution for 
+    error handling within a Dual Core Lockstep (\acrshort{DCLS}) RISC-V 
+    Processor Architecture. The solution provides a framework to implement 
+    different error handling techniques given specific scenarios in order to 
+    satisfy both requirements.
 \end{abstract}
 
 \newpage
@@ -204,7 +205,7 @@ DebugOn
 A system is considered \emph{Safety-critical} when a failure in such could
 result in loss of life, significant property damage, or damage to the
 environment. Aircrafts, cars, weapons systems, medical devices and nuclear 
-plants are considered traiditional examples of safety-critical systems. Most of 
+plants are considered traditional examples of safety-critical systems. Most of 
 these applications, if not all, rely on embedded systems that are expected to be 
 fault tolerant. A system fault tolerant, according to the authors in 
 \ref{nasa_fault_tolerance}, is a system that is able to continue operating 
@@ -216,34 +217,56 @@ are adequate and that the systems is likely to meet them.
 
 The objective of creating a fault-tolerant system is to prevent disruptions
 arising from a single point of failure, ensuring the high availability and
-business continuity of mission-critical applications or systems. As of now 
-faults in distributed embedded systems can be permanent, intermittent or 
-transient. Permanent faults cause long-term malfunctioning of components, while 
-transient and intermittent faults appear for a short time. The effects of these 
-faults, independently of their nature, can be devastating. They may corrupt data
-or lead to logic miscalculations, which can result in a fatal failure or 
-dramatic \acrshort{QOS} deterioration if not handled propperly. 
+business continuity of mission-critical applications or systems. As of now there
+are three known kinds of high-level faults in embedded systems, such faults can 
+be permanent, intermittent or transient. Permanent faults cause long-term 
+malfunctioning of components, while transient and intermittent faults appear for 
+a short time. The effects of these faults, independently of their nature, can be 
+devastating. They may corrupt data or lead to logic miscalculations, which can 
+result in a fatal failure or dramatic \acrshort{QOS} deterioration if not 
+handled properly. 
 
 Transient and intermittent faults can be addressed in \emph{hardware} with
-hardening techniques or in \emph{software}, using error handling techniques. 
-Safety-critical applications have to be implemented such that they satisfy 
-strict timing requirements and tolerate faults without exceeding a given amount 
-of resources. Moreover, not only timeliness, reliability and cost-related 
-requirements have to be considered but also other issues such as debugability 
-and testability have to be taken into account. 
+hardening techniques in conjunction with error handling techniques in 
+\emph{software}. Safety-critical applications have to be implemented such that 
+they satisfy strict timing requirements and tolerate faults without exceeding a 
+given amount of resources. Moreover, not only timeliness, reliability and 
+cost-related requirements have to be considered but also other issues such as 
+debugability and testability have to be taken into account. 
 
+In this chapter, we motivate the analysis and implementation of software error 
+handling techniques for fault tolerant systems during the design of 
+these safety-critical applications based on a RISC-V \acrshort{DCLS} 
+architecture. We introduce the starting point of the proyect as well as the main 
+contribution of our work. Finally, we present a short overview of the document's 
+structure.
 
+\section{Motivations}
 
-In this chapter, we motivate the importance of software error handling
-techniques for fault tolerant systems during the design of these safety-critical
-applications based on embedded systems. We introduce the starting point of the
-proyect as well as the main contribution of our work. Finally, we present a
-short overview of the document's structure.
+A \acrshort{DCLS} RISC-V based architecture has been already proposed and
+designed in \ref{ida_fault_tolerance_framework}, according to its authors it
+includes different hardware hardening techniques such as 
+\acrlong{NMR} Crossbar (\acrshort{NMR}) and a \acrlong{DLD} (\acrshort{DLD}) to
+protect logic and registers,
+\acrlong{ECC} (\acrshort{ECC}) blocks in different memory arrays (such as cache
+and other kind of memories) and a \acrlong{FTM} (\acrshort{FTM}) as can be seen 
+in Figure \ref{ida_fault_tolerance_arch}.
 
-\section{Motivation}
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{ida_fault_tolerance_arch.png}
+        \caption{Block Diagram from the Fault Tolerant RISC-V architecture
+        designed in \ref{ida_fault_tolerance_framework}. The \acrshort{DCLS} can
+    be clearly seen by the redundant \acrlong{CPU} (\acrshort{CPU}).}
+        \label{ida_fault_tolerance_arch}
+    \end{center}
+\end{figure}
 
-In this section we discuss the main sources of motivation for analyzing and
-implementing different software error handling techniques for 
+Furthermore, this framework allows developers and researchers to easily modify 
+it and implement different hardware hardening techniques. Although all its benefits
+and great error detection and mitigation results, this framework lacks of
+software error handling and recovery techniques such as, for example,
+checkpointing for rollback or roll-forward recovery, global reset 
 
 \newpage
 
