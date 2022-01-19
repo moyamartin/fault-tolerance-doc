@@ -208,7 +208,7 @@ environment. Aircrafts, cars, weapons systems, medical devices and nuclear
 plants are considered traditional examples of safety-critical systems. Most of 
 these applications, if not all, rely on embedded systems that are expected to be 
 fault tolerant. A system fault tolerant, according to the authors in 
-\ref{nasa_fault_tolerance}, is a system that is able to continue operating 
+\cite{nasa_fault_tolerance}, is a system that is able to continue operating 
 without interruption when one or more of its components fail, they aim 
 to provide the ability to deliver a service that can be trusted, while fault 
 removal and fault forecasting aim to reach confidence in that ability by 
@@ -241,56 +241,56 @@ taken into account.
 In this section, it is described the motivation of the analysis and 
 implementation of software error handling techniques for fault tolerant systems 
 during the design of safety-critical applications based on a RISC-V 
-\acrshort{DCLS} architecture, describing the current issues with \acrshort{MCU} 
-and soft errors as well as possible solutions to this problem. Finally, it is 
-also introduced the starting point of the proyect and a short overview of the 
-work's structure.
+\acrshort{DCLS} architecture, describing the current issues with 
+\acrshort{MCU}s and soft errors as well as possible solutions to this problem
+and the current status of the RISC-V architecture in the subject of
+fault-tolerance systems.
 
 \subsection{Soft errors and their effects in processors}
 
 A soft error is a \emph{glitch} in a semiconductor device. These glitches are
-random and usually cathastrophic in safety-critical application. The main source
-of soft error come from \emph{ionizing radiation}. Ionizing radiation are
-high-energy particles (e.g. alpha particles, heavy ions, neutrons) or
+random and usually cathastrophic in safety-critical applications. The main 
+source of soft errors come from \emph{ionizing radiation}. Ionizing radiation 
+are high-energy particles (e.g. alpha particles, heavy ions, neutrons) or
 electromagnetic waves (e.g. X-rays, gamma rays) striking the semiconductor
 substrate provoking faults which lead to soft errors in such devices under
-radiation. While these errors have a transient behaviour that does not
-permamently harm digital/analogue circuits, they have a significant impact on
-system reliability; thus, as mentioned before, leading to catasthrope in a
-safety-critical application. Ionizing radiation can potentially harm electronics
-in three major ways:
+these circumstances. These errors have a transient or permanent behaviour that 
+harm digital/analogue circuits, having a significant impact on system 
+reliability; thus, as mentioned before, leading to catasthrope in a 
+safety-critical applications. Ionizing radiation can potentially harm 
+electronics in three major ways:
 
 \begin{enumerate}
 
     \item \textbf{\acrfull{TID}}: which relates to an electronic device's
         accumulated, irreversible damage (i.e. hard error) that results in the
-        degradation of the device over the time. It happens when charge carriers
+        degradation of the device over time. It happens when charge carriers
         are inserted, as radiation strikes, into the isulators of the device,
-        where they are trapped and thereby change the electrical
+        where they are trapped and thereby changing the electrical 
         characteristics.
     \item \textbf{\acrfull{SEEs}}: These faults are most frequently temporary
         (i.e. soft error) and do not cause permanent harm like \acrshort{TID};
         however, they can provoke undesired changes in behaviour. Excess charge
-        carriers, produced as silicon atoms get ionized under radiaton, are
+        carriers, produced as silicon atoms get ionized under radiation, are
         responsible for these transient effects. If a large amount of these
         charges accumulates in a particular region, an event called 
         \acrfull{SET} might arise where logical values of lines in that region
-        are briefly disrupted untill the dissipation of the excess charges.
+        are briefly disrupted until the dissipation of the excess charges.
         Nevertheless, if a storage unit latches the new value of a line, a
-        longer lasting effect on the system output, i.e. \acrfull{SEU}, will
+        longer lasting effect on the system output, i.e. a \acrfull{SEU}, will
         occur which can generally be resolved by restoring all values through a
         system reset. However, \acrfull{SEFIs}, a type of \acrshort{SEU}, cannot
         be dealt with a simple reset.
-    \item \textbf{\acrfull{DD}}: This kind of iraddiation effect occurs when a
+    \item \textbf{\acrfull{DD}}: This kind of irradiation effect occurs when a
         high-speed particle hits and displaces silicon atoms from their
         locations. These movements cause defects in the silicon substrate; thus,
         the electrical features of the device are altered.
 \end{enumerate}
 
-These three kinds of irradiation impact differently in the \acrshort{MCU}s
-behavior, as \acrshort{TID} and \acrshort{DD} effects do irreversible permanent 
-damage to the device, this work focus mostly on \acrshort{SEEs} irradiation
-effects.
+These three kinds of irradiation impact differently in the \acrshort{MCU}'s
+behaviour, as \acrshort{TID} and \acrshort{DD} effects do irreversible permanent 
+damage to the device, this work it is completely focused on \acrshort{SEEs} 
+irradiation effects.
 
 \acrshort{SEU}s can readily affect the data-flow and control-flow of a
 process. Upsets in values stored in memory elements can lead to data-flow errors 
@@ -323,49 +323,112 @@ techniques.
 
 \subsection{Fault-tolerance techniques}
 
+As mentioned before, there are several techniques available in current
+literature about fault-tolerance techniques from three different domains.
+
 The hardware-based techniques, rely solely on spatial redundancy, providing two
 or more instances of a hardware component, such as processors, memories, buses
 or power supplies, for protection agains soft errors. This class of techniques
-include \acrfull{TMR}, \acrfull{DWC} and hardware monitors which incorporate
-watchdog or checker modules to monitor the system and detect errors. These
-techniques can protect the system from rrors in the computations outputs. i.e.
-\acrshort{SDC}s.
+include \acrfull{TMR} \cite{tmr_paper}, \acrfull{DWC} and hardware monitors which 
+incorporate watchdog or checker modules to monitor the system and detect errors. 
+These techniques can protect the system from rrors in the computations outputs. 
+i.e. \acrshort{SDC}s.
 
-On the other hand, Software
+On the other hand, \acrfull{SIHFT} approaches handle hardware malfunctions by
+merely shielding the software without any hardware alteration. These techniques
+are based on adding redundant software code for comparison to detect errors.
+However, this kind of techniques add a considerable amount of overhead to the
+firmware running on the \acrshort{MCU} compromising performance and size, which 
+in critical applications, where timing is crucial, might not be suitable. This
+kind of techniques, such as \acrfull{ABFT} \cite{abft_huang}, \acrfull{HETA}
+\cite{heta_paper}, \acrfull{SWIFT} \cite{swift_paper} and \acrfull{SSETA} 
+\cite{sseta_paper}, detect control-flow faults leading to \acrshort{FI}s, which 
+manifest themselves as hangs or crashes, and then place the system into a 
+fail-safe state. In general, both hardware- and software-based techniques are 
+not capable of correcting errors, but rather detecting them, to avoid a failure 
+which would have adverse effects on the entire mission. Furthermore, they 
+protect the system either from \acrshort{SDC}s or \acrshort{FI}s, but not both. 
+However, there are exceptions based on \acrfull{SIHFT} techniques, such 
+as \acrfull{SWIFTR} \cite{swiftr_paper} and \acrfull{SSWIFTR} 
+\cite{sswiftr_paper}, which provide data-flow level protection supporting both 
+the decision and recovery of \acrshort{SDC}s as well as \acrshort{FI}s, some 
+faults in the data-flow can produce \acrshort{FI}s and consequently can be 
+avoided through data protection mechanisms.
 
-\begin{comment}
-A \acrshort{DCLS} RISC-V based architecture has been already proposed and
-designed in \ref{ida_fault_tolerance_framework}, according to its authors it
-includes different hardware hardening techniques such as 
-\acrlong{NMR} Crossbar (\acrshort{NMR}) and a \acrlong{DLD} (\acrshort{DLD}) to
-protect logic and registers,
-\acrlong{ECC} (\acrshort{ECC}) blocks in different memory arrays (such as cache
-and other kind of memories) and a \acrlong{FTM} (\acrshort{FTM}) as can be seen 
-in Figure \ref{ida_fault_tolerance_arch}.
+Finally, the hybrid techniques are the ones that use a \acrshort{SIHFT} method
+combined with a hardware \acrshort{IP}, which performs consistency checks in the
+processor, making them effective against both \acrshort{SDC}s and
+\acrshort{FI}s. For instance, the lockstep technique is a hybrid fault-tolerance
+technique based on software and hardware recovery mechanisms (e.g. roll-back
+recovery, roll-forward recovery) at the software level, and processor
+replication and checker circuits at the hardware level. Therefore, this latest
+type of technique is capable of both error detection and correction.
 
-\begin{figure}[h!]
-    \begin{center}
-        \includegraphics[width=0.7\textwidth]{idafaulttolerancearch.png}
-        \caption{Block Diagram from the Fault Tolerant RISC-V architecture
-        designed in \ref{ida_fault_tolerance_framework}. The \acrshort{DCLS} can
-    be clearly seen by the redundant \acrlong{CPU} (\acrshort{CPU}).}
-        \label{ida_fault_tolerance_arch}
-    \end{center}
-\end{figure}
+\subsection{RISC-V architecture within fault-tolerance solutions}
 
-Furthermore, this framework allows developers and researchers to easily modify 
-it and implement different hardware hardening techniques. Although all its benefits
-and great error detection and mitigation results, this framework lacks of
-software error handling and recovery techniques such as, for example,
-checkpointing for rollback or roll-forward recovery, global reset 
+According to the authors in \cite{riscv_paper}, the RISC-V architecture is a 
+\acrfull{ISA} designed to support computer architecture research and 
+education with the philosphy of being \emph{open source}, which on the latest 
+decade has gained large attention, not only in the academia environment but even 
+in commercial products, i.e. \emph{Espressif} has designed their own chip based 
+on a RISC-V architecture to replace the outdated \emph{ESP8266}, with this new 
+architecture.
 
-\end{comment}
+This type of architecture is designed to be suitable for a wide range of uses.
+The base instruction set has a fixed length of 32-bit naturally aligned
+instructions, and the \acrshort{ISA} supports variable length extensions where
+each instruction can be any number of 16-bit parcels in length. Making it
+suitable for small embedded systems, personal computers, supercomputers with
+vector processors and warehouse-scale parallel computers. Despite its increasing
+popularity and the fact that there is current work in progress on fault-tolerant
+systems based on it (\cite{soft_core_riscv_sram_radiation}, 
+\cite{heterogeneus_fault_tolerance_riscv} and 
+\cite{low_cost_fault_tolerant_riscv}), there are no commercial implementations 
+of this technology within the aerospace and automovilistic domain. Furthermore,
+current implementations do not include \acrshort{DCLS} architectures and
+error-handling techniques in firmware, addressing degradation \acrshort{QOS}
+upon a fault detection within the hardware itself.
 
-\newpage
+The importance of error-handling within a fault-tolerance system and the
+increasing popularity of this architecture leads the implementation of
+error-handling techniques in software within a \acrshort{DCLS} architecture
+implemented on a RISC-V.
+
+\section{Report Structure}
+
+The current report is divided into Chapters that addresses the following
+subjects:
+
+\begin{itemize}
+    \item Chapter 2: The current proposal and its goals is described among the
+        basis and requirements of the work.
+    \item Chapter 3: The current State-of-the-art and theoretical aspects of 
+        error-handling in a \acrshort{DCLS} systems is described.
+    \item Chapter 4: Describes how the error-handling techniques were
+        implemented within the development of this proyect.
+    \item Chapter 5: Shows the results of the error-handling system developed on
+        the execution of several tests/benchmarks.
+    \item Chapter 6: The authors concludes over the experience of this project
+        showing the acquired knowledge as well as future work and improvements.
+\end{itemize}
+
+\chapter{Project Description}
+
+\chapter{Theoretical Aspects}
+
+\chapter{Implementation}
+
+\chapter{Benchmarking and results}
+
+\chapter{Conclusions}
+
+\begin{printbibliography}
+    \thispagestyle{fancy}
+\end{printbibliography}
 
 % Print table of acronyms
-\addcontentsline{toc}{section}{Tabla de Abreviaturas}
-\glsaddall
-\printnoidxglossary[type=\acronymtype,title={Abreviaturas}]
+\begin{printnoidxglossaries}
+    \thispagestyle{fancy}
+\end{printnoidxglossaries}
 
 \end{document}
