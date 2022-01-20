@@ -144,9 +144,9 @@ DebugOn
 	\vspace{15mm}
 
 	\large{ \textbf{Technische Universität Braunschweig}} \\[5mm]
-	\textbf{Institut für Datentechnik und Kommunikationsnetze} \\[50mm]
+	\textbf{Institut für Datentechnik und Kommunikationsnetze} \\[20mm]
 	\Large{\textbf{Error Handling within a Dual Core Lockstep RISC-V Processor
-    Architecture}} \\[15mm]
+    Architecture}} \\[65mm]
 
     \end{center}
 
@@ -236,7 +236,7 @@ Moreover, not only timeliness, reliability and cost-related requirements have to
 be considered but also other issues such as debugability and testability must be
 taken into account.
 
-\section{Motivations}
+\section{Motivations}\label{motivations}
 
 In this section, it is described the motivation of the analysis and 
 implementation of software error handling techniques for fault tolerant systems 
@@ -246,7 +246,7 @@ during the design of safety-critical applications based on a RISC-V
 and the current status of the RISC-V architecture in the subject of
 fault-tolerance systems.
 
-\subsection{Soft errors and their effects in processors}
+\subsection{Soft errors and their effects in processors}\label{soft_errors}
 
 A soft error is a \emph{glitch} in a semiconductor device. These glitches are
 random and usually cathastrophic in safety-critical applications. The main 
@@ -383,11 +383,10 @@ vector processors and warehouse-scale parallel computers. Despite its increasing
 popularity and the fact that there is current work in progress on fault-tolerant
 systems based on it (\cite{soft_core_riscv_sram_radiation}, 
 \cite{heterogeneus_fault_tolerance_riscv} and 
-\cite{low_cost_fault_tolerant_riscv}), there are no commercial implementations 
-of this technology within the aerospace and automovilistic domain. Furthermore,
-current implementations do not include \acrshort{DCLS} architectures and
-error-handling techniques in firmware, addressing degradation \acrshort{QOS}
-upon a fault detection within the hardware itself.
+\cite{low_cost_fault_tolerant_riscv}), there are only a few commercial 
+implementations of this technology within the aerospace and automovilistic 
+domain (\cite{noelv_page} and \cite{catapult_page}), which recently added
+fault-tolerance features to them. 
 
 The importance of error-handling within a fault-tolerance system and the
 increasing popularity of this architecture leads the implementation of
@@ -415,9 +414,100 @@ subjects:
 \chapter{Project Description}
 \thispagestyle{fancy}
 
-\chapter{Theoretical Aspects}
+This chapter does a high level description of the work, at first it details the
+framework where this work is based on and continues with the scope and goals
+which describes the proposed solution for the motivations of it described in 
+Section \ref{motivations}.
+
+\section{Fault-Tolerance Framework in RISC-V}\label{framework_riscv}
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[width=0.45\textwidth]{framework_arch.png}
+        \caption{Fault tolerant RISC-V framework's architecture}
+        \label{framework_arch}
+    \end{center}
+\end{figure}
+
+Authors in \cite{fault_tolerance_framework} have designed a framework to develop 
+fault-tolerant solutions in such architecture. It is based on the Rocket 
+processor \cite{rocket_chip_paper} and enables developers and
+researchers to implement redundancy schemes easily due to the fact that the
+different hardware-hardening techniques were written on \emph{Chisel} 
+\cite{chisel_paper}, a high-level hardware design language that facilitates 
+advanced circuit generation and design reuse for digital logic designs acting as 
+a starting point for new developments.
+
+The architecture of this framework implements several hardening-techniques
+already, as depicted in Figure \ref{framework_arch}, it implements
+\acrfull{NMRbar} to protect \acrfull{IO} from TileBuses, interrupts and memories
+interfaces such as L1 and L2TLB caches; a redundant synchronized \acrfull{CPU} 
+to implement a \acrshort{DCLS} technique; \acrfull{ECC} on memory caches for
+error detection and correction; a \acrfull{DLD} that generates a fingerprint of
+the internal registers on the \acrshort{CPU} enabling early detection of errors
+before they propagate to other interfaces and, finally, an internal and external 
+\acrfull{FTM} which resynchronizes the cores after an error occurrence,
+indicates errors on its own \acrfull{CSR} and provide an external \acrfull{SPI}
+interface which can be accessed externaly.
+
+This architecture is fully and easily configurable, for instance the
+\acrshort{NMRbar}s can be configured in a \acrfull{DMR} or a \acrshort{TMR} 
+configuration, or the \acrshort{ECC} instances can be customized to select
+different types of correction code (i.e. parity, \acrfull{SEC}, Hamming or, also
+known as, \acrfull{SEC-DED}).
+
+On another hand, although the default architecture of this framework already
+provides a \acrshort{DCLS} scheme, it does not implements error-handling
+and recovery techniques, which makes it suitable for the development of this
+work as it provides an extension in the software-domain, making the framework
+a \emph{hybrid} solution for future fault-tolerance projects.
+
+\section{Scope and goals}
+
+As a solution to the issues stated in Section \ref{soft_errors}, in this work is
+proposed to develop a set of error-handling techniques within a \acrshort{DCLS}
+with the following goals:
+
+\begin{itemize}
+    \item Analyze and study the state-of-the-art on error-handling techniques
+        in software for fault-tolerance systems.
+    \item Implement these techniques to recover the system to a healthy state on 
+        the occurrence of a temporary soft-error.
+    \item Maintain introduced overhead, in terms of size and time execution
+        minimal, triggering these techniques in an intelligent manner.
+    \item Extend the capabilities of the framework described in Section
+        \ref{framework_riscv}, adding software error handling and recovery
+        solutions for developers and researchers to implement easily.
+\end{itemize}
+
+The solution is implemented on a ZCU104 evaluation board, depicted in Figure
+\ref{zcu104}, where the implementation is deployed and tested its correct
+operation.
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{zcu104.jpg}
+        \caption{ZCU104 development board}
+        \label{zcu104}
+    \end{center}
+\end{figure}
+
+
+\chapter{Theoretical Background}
 \thispagestyle{fancy}
 
+This chapter describes the theoretical background of a \acrshort{DCLS} system
+along state-of-the-art error-handling and recovery techniques in software.
+
+\section{\acrfull{DCLS}}
+
+Spacial modular redundancy techniques where first proposed on the early 1960s,
+during the start of space programs since reliability provisions were required to
+avoid human lives being at risk by computer failures in space. The initial
+examples of lockstep proposals began in the early 2000s \cite{lockstep_patent},
+by a pattent filed by \emph{Compaq Computer Corp.}, these kind of systems run
+the same set of operations at the same time in parallel. 
+ 
 \chapter{Implementation}
 \thispagestyle{fancy}
 
