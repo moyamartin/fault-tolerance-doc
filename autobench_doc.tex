@@ -199,7 +199,7 @@ DebugOn
 
 \newpage
 
-\chapter{Introduction}
+\chapter{Introduction}\label{introduction}
 
 \thispagestyle{fancy}
 A system is considered \emph{Safety-critical} when a failure in such could
@@ -261,7 +261,6 @@ safety-critical applications. Ionizing radiation can potentially harm
 electronics in three major ways:
 
 \begin{enumerate}
-
     \item \textbf{\acrfull{TID}}: which relates to an electronic device's
         accumulated, irreversible damage (i.e. hard error) that results in the
         degradation of the device over time. It happens when charge carriers
@@ -496,18 +495,145 @@ operation.
 \chapter{Theoretical Background}
 \thispagestyle{fancy}
 
-This chapter describes the theoretical background of a \acrshort{DCLS} system
-along state-of-the-art error-handling and recovery techniques in software.
+This chapter describes the theoretical background of Lockstep technique and how
+a \acrshort{DCLS} system is commonly implemented along state-of-the-art 
+error-handling and recovery techniques in software.
 
-\section{\acrfull{DCLS}}
+\section{Lockstep}
 
 Spacial modular redundancy techniques where first proposed on the early 1960s,
 during the start of space programs since reliability provisions were required to
 avoid human lives being at risk by computer failures in space. The initial
 examples of lockstep proposals began in the early 2000s \cite{lockstep_patent},
-by a pattent filed by \emph{Compaq Computer Corp.}, these kind of systems run
-the same set of operations at the same time in parallel. 
- 
+by a pattent filed by \emph{Compaq Computer Corp.}
+
+According to the autor in \cite{lockstep_analysis_thesis}, the term
+\emph{lockstep} in the field of the embedded systems describes a mechanism to 
+monitor and verify the correctness in the operation of a system by employing at 
+least two \acrshort{CPU}s performing identical operations, and is part of the 
+hybrid techniques domain presented in Chapter \ref{introduction}. 
+Typically, the processors are synchronized to the same state during the system 
+start-up. The same tasks are independently processed by the processors operating 
+in lockstep and a real-time comparisson of the output signals is performed, 
+where the output signal can be comparisson of the processor flags, registers or 
+memory modules. Furthermore, in case of discrepancy in the output signals, an 
+error signal is generated and further execution of the task is inhibited, 
+leading to a faulty state of the system, which must be handled by the system
+developer and is dependent upon the architecture in question. A high-level block 
+diagram of this methodology extended to a Dual Core architecture is depicted 
+Figure \ref{lockstep_diagram}. The main benefit of this method is its simplicity
+and has been extensively implemented by semiconductors companies, for example
+the ARM Cortex-R5 implements a dual-core processor which can be configurated for
+either a redundant CPU in lock-step for fault tolerant/fault detecting
+dependable systems or dual cores running independently, each executing its own
+program with its own bus interfaces, interrupts and so on.
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[width=0.4\textwidth]{lockstep_diagram.png}
+        \caption{High-level block diagram of a Dual Core Lockstep mechanism}
+        \label{lockstep_diagram}
+    \end{center}
+\end{figure}
+
+The lockstep technique's most significant benefit is its ability to detect both
+\acrshort{SDC}s and \acrshort{FI}s, in contrast to many other fault tolerance
+techniques, but on its own is not capable of correcting and recovering from such
+situations, that is the main reason why Lockstep techniques in hardware are
+coupled with error handling and recovery software, making it a hybrid
+fault-tolerance solution. There are several software techniques for such goals
+that are described in the following Sections.
+
+\section{Re-execution}
+
+As mentioned previously, after a transient fault is detected by the lockstep
+mechanism, a fault tolerance mechanism has to be invoked to handle such
+situation. The simplest fault tolerance technique available in the current
+literature \cite{reexecution_paper} is re-execution. With re-execution, a
+process is executed again if affected by faults. 
+
+Although its simplicity, when a process is re-executed after a fault has been
+detected, the system restores all initial inputs of that process to the initial
+state of the application running. This process requires time for its recovery,
+denoted as \emph{recovery overhead}. Furthermore, all the progress of the
+application has been lost, and for comparisson purposes, this will be counted as
+overhead of the methodology.
+
+\section{Rollback Recovery with Checkpointing}
+
+The time needed for re-execution can be substantially reduced with more complex
+fault tolerance techniques such as \emph{rollback recovery with checkpointing}.
+The main principle of this technique is to restore the last non-faulty state of
+the failing process. The last non-faulty state, also known as \emph{checkpoint},
+has to be saved in advance in the static memory and will be restored if the
+process fails, this method takes for granted that the memory in which
+this \emph{checkpoint} is stored it is hardened against soft-errors. The part of
+the process between two checkpoints or between a checkpoint and then of the
+process is caled an \emph{execution segment}, this implies that the
+\emph{re-execution} mechanism is a \emph{Rollback recovery} with only one
+checkpoint, which is the starting point of the application.
+
+Checkpoints must be stored during the whole execution of the application, this
+can be done in an intelligent manner, where saving of the process states is the
+fastest. However, this approach is \emph{application-specific} requiring prior
+knowdlege of application details. On another hand, \emph{checkpointing} can be
+done \emph{systematically}, for example, at equal intervals.
+
+Authors in \ref{rollforward_error_recovery} have depicted an example of this 
+mechanism, which can be seen in Figure \ref{rollback_diagram}, here two parallel 
+systems are executing the same application, $\mathrm{T_{ch}}$ is the time 
+required to create and store the checkpoint, $\mathrm{t_{cp}}$ is the time 
+required to make the state of the modules consistent with the state saved in one 
+of the modules, in this case, checkpointing is done periodically, where the 
+interval is denoted by $\mathrm{I_j}$, and, finally, $\mathrm{t_r}$ is the time 
+required to make the rollback.
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[width=0.7\textwidth]{rollback_diagram.png}
+        \caption{Rollback in duplex systems timeline.}
+        \label{rollback_diagram}
+    \end{center}
+\end{figure}
+
+\section{Rollforward recovery with checkpointing}
+
+Once again, as happened with re-execution, rollback also adds some overhead
+execution by retrying an \emph{execution-segment} that was already executed
+before. In order to avoid this overhead in time-execution, authors in
+\cite{rollforward_error_recovery} have proposed a rollforward technique. This
+technique is based on a spare processor, which when a checkpoint mismatch
+occurs, during the validation step, the two processors continue execution while
+the spare processor retries the task to determine which of the diverged
+processors is fault-free, once the faulty processor is detected, the application
+continues while the state of the faulty processor is replaced by a healthy-state
+to continue its operation. This roll-forward checkpointing scheme is depicted in
+Figure \ref{rollforward_scheme}, there can be seen the Spare processor running
+the \emph{faulty} checkpoint and verify which of the two main processors is
+failing.
+
+\begin{figure}[h!]
+    \begin{center}
+        \includegraphics[width=0.5\textwidth]{rollforward_scheme.png}
+        \caption{Roll-forward checkpointing scheme}
+        \label{rollforward_scheme}
+    \end{center}
+\end{figure}
+
+The major advantage of this scheme is that it has lower overhead of the recovery
+action, with the cost of a spare processor and the fact that this scheme must
+retain any result that is to be delivered to an external environment, such as
+other task or peripherals. Which could be still a significant drawback for a
+time-critical applications if the deadline is not met.
+
+Furthermoure, although this scheme avoids the use of a rollback mechanism, if
+this task fails on the last two checkpoints, it is necessary to apply the latter
+on order to restore the system to a healthy state.
+
+Finally, during the validation step, if the three processor missmatch, then the
+system should restore the two main processors to a known healthy checkpoint, or
+even so restart the whole system.
+
 \chapter{Implementation}
 \thispagestyle{fancy}
 
